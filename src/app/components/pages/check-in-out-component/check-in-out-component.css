@@ -11,31 +11,30 @@
 .live-clock {
   font-weight: 700;
   letter-spacing: 1px;
-  color: rgba(0, 0, 0, 1);
+  background: linear-gradient(135deg, #E67E22 0%, #628141 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 .btn-check-in-out {
-  background-color: rgba(79, 106, 53, 0.92);
   color: var(--white-color);
   border: none;
   padding: 8px 20px;
-  border-radius: 6px;
+  border-radius: 3rem;
   font-weight: 500;
   transition: all 0.3s ease;
   white-space: nowrap;
   position: relative;
   z-index: 1;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
 }
 
 .btn-check-in-out:hover {
-  background-color: #4f6a35;
   transform: translateY(-1px);
 }
 
 .btn-check-in-out.btn-checked-in {
   background-color: rgba(255, 193, 7, 0.9);
-  color: #000;
 }
 
 .btn-check-in-out.btn-checked-in:hover {
@@ -54,9 +53,21 @@
   color: rgba(255, 255, 255, 0.22);
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
+  /* Hide live clock on small screens */
   .live-clock {
-    font-size: 1.1rem;
+    display: none;
+  }
+
+  /* Show only icon in the check-in/out button */
+  .btn-check-in-out {
+    padding: 8px;
+    font-size: 0; /* hide text while keeping icon visible */
+  }
+
+  .btn-check-in-out i {
+    font-size: 18px;
+    margin-right: 0;
   }
 }
 .blur-overlay {

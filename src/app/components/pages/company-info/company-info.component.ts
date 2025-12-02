@@ -1,338 +1,292 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { GoogleMap, MapMarker, MapCircle } from '@angular/google-maps';
-import { CompanyService, Company, CompanyCreateDto, CompanyUpdateDto } from '../../../services/company.service';
+import { CompanyService } from '../../../services/company.service';
+import * as L from 'leaflet';
+declare var bootstrap: any;
 
-declare const google: any;
+
+import { icon, Marker } from 'leaflet';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-company-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, GoogleMap, MapMarker, MapCircle, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './company-info.component.html',
   styleUrl: './company-info.component.css'
 })
 export class CompanyInfoComponent implements OnInit {
   CompanyForm = new FormGroup({
-    CompanyName: new FormControl('', Validators.required),
-});
-  companies: Company[] = [];
-  selectedCompany: Company | null = null;
-  isEditing = false;
-  isCreating = false;
+    CompanyName: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    WebsiteUrl: new FormControl('', Validators.pattern('https?://.+')),
+    ContactPhone: new FormControl('', Validators.pattern('^\\+?[0-9\\-\\s]{8,11}$')),
+    ContactEmail: new FormControl('', Validators.email),
+    DomainUrl: new FormControl('', Validators.required),
+    Address: new FormControl('', Validators.required),
+    Latitude: new FormControl<number | null>(null, Validators.required),
+    Longitude: new FormControl<number | null>(null, Validators.required),
+    AllowedRadiusMeters: new FormControl(100, [Validators.required, Validators.min(10)]),
+    CompanyLogo: new FormControl(''),
+    CompanyHeader: new FormControl(''),
+    CompanyFooter: new FormControl(''),
+    TaxRegistrationNumber: new FormControl('', Validators.required),
+    CommercialNumber: new FormControl('', Validators.required)
+  });
+
+  companyId?: number;
+  latitude?: number;
+  longitude?: number;
+
   loading = false;
-  error: string | null = null;
+  selectedLogo: File | null = null;
+  selectedHeader: File | null = null;
+  selectedFooter: File | null = null;
 
-  formData: CompanyCreateDto | CompanyUpdateDto = {
-    name: '',
-    address: '',
-    latitude: null,
-    longitude: null,
-    radiusInMeters: null,
-    phone: '',
-    email: '',
-    website: '',
-    taxId: '',
-    registrationNumber: ''
-  };
+  private map?: L.Map;
+  private marker?: L.Marker;
+  private mapInitialized = false;
 
-  private readonly DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 30.0444, lng: 31.2357 };
-  private readonly DEFAULT_RADIUS = 100;
-
-  showMapModal = false;
-  mapCenter: google.maps.LatLngLiteral = { ...this.DEFAULT_CENTER };
-  mapZoom = 15;
-  markerPosition: google.maps.LatLngLiteral | null = null;
-  mapRadius = this.DEFAULT_RADIUS;
-  markerOptions: google.maps.MarkerOptions = { draggable: true };
-  circleOptions: google.maps.CircleOptions = {
-    strokeColor: '#0d6efd',
-    strokeOpacity: 0.6,
-    strokeWeight: 2,
-    fillColor: '#0d6efd',
-    fillOpacity: 0.15
-  };
-  mapError: string | null = null;
-  geocoding = false;
-  private geocoder?: google.maps.Geocoder;
-  pendingSelection: { lat: number; lng: number; radius: number; address: string } | null = null;
-
-  constructor(private companyService: CompanyService) {}
-
-  ngOnInit(): void {
-    this.loadCompanies();
+  constructor(private companyService: CompanyService) {
   }
 
-  loadCompanies(): void {
+  ngOnInit() {
+    this.loadCompany();
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.latitude = position.coords.latitude;
+        this.longitude = position.coords.longitude;
+      });
+  }
+  onLogoSelected(event: any): void {
+    this.selectedLogo = event.target.files[0] as File;
+  }
+  onHeaderSelected(event: any): void {
+    this.selectedHeader = event.target.files[0] as File;
+  }
+  onFooterSelected(event: any): void {
+    this.selectedFooter = event.target.files[0] as File;
+  }
+  loadCompany() {
     this.loading = true;
-    this.error = null;
-    this.companyService.getAll().subscribe({
+    this.companyService.GetCompanySetting().subscribe({
       next: (data) => {
-        this.companies = data;
-        if (data.length > 0 && !this.selectedCompany) {
-          this.selectCompany(data[0]);
-        }
+        this.companyId = data.id;
+        this.latitude = data.latitude;
+        this.longitude = data.longitude;
+        this.CompanyForm.patchValue({
+          CompanyName: data.companyName,
+          WebsiteUrl: data.websiteUrl,
+          ContactPhone: data.contactPhone,
+          ContactEmail: data.contactEmail,
+          DomainUrl: data.domainUrl,
+          Address: data.address,
+          Latitude: data.latitude,
+          Longitude: data.longitude,
+          AllowedRadiusMeters: data.allowedRadiusMeters,
+          CompanyLogo: data.companyLogo ? `${environment.webApiURL}/Files/CompanySettings/${data.companyLogo}` : '',
+          CompanyHeader: data.companyHeader ? `${environment.webApiURL}/Files/CompanySettings/${data.companyHeader}` : '',
+          CompanyFooter: data.companyFooter ? `${environment.webApiURL}/Files/CompanySettings/${data.companyFooter}` : '',
+          TaxRegistrationNumber: data.taxRegistrationNumber,
+          CommercialNumber: data.commercialNumber
+        });
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load companies';
+        debugger
         this.loading = false;
         console.error(err);
       }
     });
   }
+  SaveCompanyInfo() {
+    if (this.CompanyForm.valid) {
+      const formData = new FormData();
+      formData.append('id', this.companyId ? this.companyId.toString() : '0');
+      Object.keys(this.CompanyForm.value).forEach(key => {
+        const val = this.CompanyForm.value[key as keyof typeof this.CompanyForm.value];
+        if (val !== null) formData.append(key, val ? val.toString().trim() : '');
+      });
+      if (this.selectedLogo)
+        formData.append('logoFile', this.selectedLogo, this.selectedLogo.name);
 
-  selectCompany(company: Company): void {
-    this.selectedCompany = company;
-    this.isEditing = false;
-    this.isCreating = false;
-    this.formData = { ...company };
-    this.ensureFormLocationDefaults();
-  }
+      if (this.selectedHeader)
+        formData.append('headerFile', this.selectedHeader, this.selectedHeader.name);
 
-  startCreate(): void {
-    this.isCreating = true;
-    this.isEditing = false;
-    this.selectedCompany = null;
-    this.formData = {
-      name: '',
-      address: '',
-      latitude: null,
-      longitude: null,
-      radiusInMeters: null,
-      phone: '',
-      email: '',
-      website: '',
-      taxId: '',
-      registrationNumber: ''
-    };
-  }
+      if (this.selectedFooter)
+        formData.append('footerFile', this.selectedFooter, this.selectedFooter.name);
 
-  startEdit(): void {
-    if (this.selectedCompany) {
-      this.isEditing = true;
-      this.isCreating = false;
-      this.formData = { ...this.selectedCompany };
-      this.ensureFormLocationDefaults();
-    }
-  }
+      console.log('FormData contents:');
+      formData.forEach((value, key) => {
+        console.log(key, ':', value);
+      });
+      // const companyObj = {
+      //   id: this.companyId,
+      //   companyName: this.CompanyForm.value.CompanyName?.trim(),
+      //   address: this.CompanyForm.value.Address?.trim(),
+      //   latitude: this.CompanyForm.value.Latitude,
+      //   longitude: this.CompanyForm.value.Longitude,
+      //   allowedRadiusMeters: this.CompanyForm.value.AllowedRadiusMeters,
+      //   commercialNumberontactEmail: this.CompanyForm.value.ContactEmail?.trim(),
+      //   contactPhone: this.CompanyForm.value.ContactPhone?.trim(),
+      //   websiteUrl: this.CompanyForm.value.WebsiteUrl?.trim(),
+      //   domainUrl: this.CompanyForm.value.DomainUrl?.trim(),
+      //   companyLogo: this.CompanyForm.value.CompanyLogo?.trim(),
+      //   logoFile: this.selectedLogo,
+      //   companyHeader: this.CompanyForm.value.CompanyHeader?.trim(),
+      //   headerFile: this.selectedHeader,
+      //   companyFooter: this.CompanyForm.value.CompanyFooter?.trim(),
+      //   footerFile: this.selectedFooter,
+      //   taxRegistrationNumber: this.CompanyForm.value.TaxRegistrationNumber?.trim(),
+      //   commercialNumber: this.CompanyForm.value.CommercialNumber?.trim()
+      // } as ICompanyUpdated;
 
-  cancel(): void {
-    this.isEditing = false;
-    this.isCreating = false;
-    if (this.selectedCompany) {
-      this.formData = { ...this.selectedCompany };
-      this.ensureFormLocationDefaults();
-    }
-  }
-
-  save(): void {
-    if (this.isCreating) {
-      this.createCompany();
-    } else if (this.isEditing && this.selectedCompany) {
-      this.updateCompany();
-    }
-  }
-
-  createCompany(): void {
-    this.loading = true;
-    this.error = null;
-    this.companyService.create(this.formData as CompanyCreateDto).subscribe({
-      next: (company) => {
-        this.companies.push(company);
-        this.selectCompany(company);
-        this.isCreating = false;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to create company';
-        this.loading = false;
-        console.error(err);
-      }
-    });
-  }
-
-  updateCompany(): void {
-    if (!this.selectedCompany) return;
-    
-    this.loading = true;
-    this.error = null;
-    this.companyService.update(this.selectedCompany.id, this.formData as CompanyUpdateDto).subscribe({
-      next: (company) => {
-        const index = this.companies.findIndex(c => c.id === company.id);
-        if (index !== -1) {
-          this.companies[index] = company;
+      this.loading = true;
+      this.companyService.SaveCompanySetting(formData).subscribe({
+        next: (data) => {
+          this.loading = false;
+          this.loadCompany();
+        },
+        error: (err) => {
+          this.loading = false;
         }
-        this.selectCompany(company);
-        this.isEditing = false;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to update company';
-        this.loading = false;
-        console.error(err);
-      }
-    });
+      });
+    }
   }
 
-  deleteCompany(id: number): void {
-    if (!confirm('Are you sure you want to delete this company?')) {
-      return;
+  openMapModal() {
+    const modalElement = document.getElementById('staticMap')!;
+    const modal = new bootstrap.Modal(modalElement);
+
+    modalElement.addEventListener('shown.bs.modal', () => {
+      this.initMap();
+    }, { once: true });
+
+    modal.show();
+  }
+
+  private initMap(): void {
+    if (this.mapInitialized) return;
+
+    const centerLat = this.latitude || 30.0444; // set current zone or cairo zone
+    const centerLng = this.longitude || 31.2357;
+
+    this.map = L.map('map').setView([centerLat, centerLng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.onMapClick(e);
+    });
+
+    this.mapInitialized = true;
+
+    setTimeout(() => {
+      this.map?.invalidateSize();
+
+      if (centerLat && centerLng) {
+        this.setLocation(centerLat, centerLng);
+      }
+    }, 100);
+  }
+
+  private onMapClick(e: L.LeafletMouseEvent): void {
+    const { lat, lng } = e.latlng;
+    this.setLocation(lat, lng);
+  }
+
+  private setLocation(lat: number, lng: number): void {
+    debugger
+    this.latitude = Number(lat.toFixed(6));
+    this.longitude = Number(lng.toFixed(6));
+    // this.CompanyForm.value.Address = 'Loading...';
+
+
+    if (this.marker) {
+      this.map?.removeLayer(this.marker); // remove marker
     }
 
-    this.loading = true;
-    this.error = null;
-    this.companyService.delete(id).subscribe({
-      next: () => {
-        this.companies = this.companies.filter(c => c.id !== id);
-        if (this.selectedCompany?.id === id) {
-          this.selectedCompany = this.companies.length > 0 ? this.companies[0] : null;
+    const customIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div style="
+        width: 30px;
+        height: 30px;
+        background-color: #EA4335;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        position: relative;
+      ">
+        <div style="
+          width: 12px;
+          height: 12px;
+          background-color: white;
+          border-radius: 50%;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        "></div>
+      </div>`,
+      iconSize: [30, 42],
+      iconAnchor: [15, 42],
+      popupAnchor: [0, -42]
+    });
+
+    this.marker = L.marker([lat, lng], { icon: customIcon }).addTo(this.map!); // draw marker
+    this.map?.setView([lat, lng], 15);
+
+    this.getAddressFromCoordinates(lat, lng);
+  }
+
+  private async getAddressFromCoordinates(lat: number, lng: number): Promise<void> {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'Angular-Leaflet-App'
+          }
         }
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to delete company';
-        this.loading = false;
-        console.error(err);
+      );
+
+      if (!response.ok) {
+        throw new Error('Geocoding request failed');
       }
-    });
-  }
 
-  get hasLocation(): boolean {
-    return this.formData.latitude != null && this.formData.longitude != null;
-  }
-
-  get previewCenter(): google.maps.LatLngLiteral {
-    if (this.hasLocation) {
-      return {
-        lat: Number(this.formData.latitude),
-        lng: Number(this.formData.longitude)
-      };
-    }
-    return { ...this.DEFAULT_CENTER };
-  }
-
-  openMapModal(): void {
-    const lat = this.formData.latitude ?? this.DEFAULT_CENTER.lat;
-    const lng = this.formData.longitude ?? this.DEFAULT_CENTER.lng;
-    this.markerPosition = { lat, lng };
-    this.mapCenter = { lat, lng };
-    this.mapRadius = this.formData.radiusInMeters ?? this.DEFAULT_RADIUS;
-    this.pendingSelection = {
-      lat,
-      lng,
-      radius: this.mapRadius,
-      address: this.formData.address ?? ''
-    };
-    this.mapError = null;
-    this.showMapModal = true;
-  }
-
-  closeMapModal(): void {
-    this.showMapModal = false;
-    this.pendingSelection = null;
-    this.mapError = null;
-  }
-
-  handleMapClick(event: google.maps.MapMouseEvent | google.maps.IconMouseEvent | Event): void {
-    const mapEvent = event as google.maps.MapMouseEvent;
-    if (!mapEvent.latLng) return;
-    this.setMarker(mapEvent.latLng.lat(), mapEvent.latLng.lng());
-  }
-
-  handleMarkerDrag(event: google.maps.MapMouseEvent | google.maps.IconMouseEvent | Event): void {
-    const mapEvent = event as google.maps.MapMouseEvent;
-    if (!mapEvent.latLng) return;
-    this.setMarker(mapEvent.latLng.lat(), mapEvent.latLng.lng());
-  }
-
-  handleRadiusChange(value: number | string | null): void {
-    const numericValue = typeof value === 'string' ? Number(value) : value;
-    const sanitized = numericValue && numericValue > 0 ? numericValue : this.DEFAULT_RADIUS;
-    this.mapRadius = sanitized;
-    if (this.pendingSelection) {
-      this.pendingSelection.radius = sanitized;
-    } else {
-      this.pendingSelection = {
-        lat: this.markerPosition?.lat ?? this.DEFAULT_CENTER.lat,
-        lng: this.markerPosition?.lng ?? this.DEFAULT_CENTER.lng,
-        radius: sanitized,
-        address: this.formData.address ?? ''
-      };
-    }
-  }
-
-  applyMapSelection(): void {
-    if (!this.markerPosition || !this.pendingSelection) {
-      this.mapError = 'Please pick a location on the map.';
-      return;
-    }
-
-    this.formData = {
-      ...this.formData,
-      address: this.pendingSelection.address || this.formData.address,
-      latitude: this.markerPosition.lat,
-      longitude: this.markerPosition.lng,
-      radiusInMeters: this.pendingSelection.radius
-    };
-    this.mapRadius = this.pendingSelection.radius;
-    this.closeMapModal();
-  }
-
-  private setMarker(lat: number, lng: number): void {
-    this.markerPosition = { lat, lng };
-    this.mapCenter = { lat, lng };
-    const address = this.pendingSelection?.address ?? this.formData.address ?? '';
-    const radius = this.pendingSelection?.radius ?? this.mapRadius ?? this.DEFAULT_RADIUS;
-    this.pendingSelection = { lat, lng, radius, address };
-    this.reverseGeocode(lat, lng);
-  }
-
-  private reverseGeocode(lat: number, lng: number): void {
-    const geocoder = this.ensureGeocoder();
-    if (!geocoder) {
-      return;
-    }
-
-    this.geocoding = true;
-    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-      this.geocoding = false;
-      if (status === 'OK' && results && results.length > 0) {
-        const formatted = results[0].formatted_address;
-        if (this.pendingSelection) {
-          this.pendingSelection.address = formatted;
-        }
-        this.mapError = null;
-      } else {
-        this.mapError = 'Unable to retrieve address for the selected location.';
+      const data = await response.json();
+      this.CompanyForm.patchValue({
+        Address: data.display_name,
+        Longitude: this.longitude,
+        Latitude: this.latitude
+      });
+      if (this.marker) {
+        this.marker.bindPopup(
+          `<strong>Coordinates:</strong><br>
+           ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
+           <strong>Address:</strong><br>
+           ${data.display_name}`
+        ).openPopup();
       }
-    });
+
+    } catch (error) {
+      console.error('Error fetching address:', error);
+
+    }
   }
 
-  private ensureGeocoder(): google.maps.Geocoder | null {
-    if (typeof google === 'undefined' || !google?.maps) {
-      this.mapError = 'Google Maps SDK is not available. Please try again later.';
-      return null;
-    }
+  closeModel() {
 
-    if (!this.geocoder) {
-      this.geocoder = new google.maps.Geocoder();
-    }
-    return this.geocoder ?? null;
+    const modalElement = document.getElementById('staticMap')!;
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal.hide();
+
   }
 
-  private ensureFormLocationDefaults(): void {
-    if (this.formData.latitude === undefined) {
-      this.formData.latitude = null;
-    }
-    if (this.formData.longitude === undefined) {
-      this.formData.longitude = null;
-    }
-    if (this.formData.radiusInMeters === undefined) {
-      this.formData.radiusInMeters = null;
-    }
-  }
 }
 
 

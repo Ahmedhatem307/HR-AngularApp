@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './check-in-out-component.css',
 })
 export class CheckInOutComponent implements OnInit, OnDestroy {
-  CheckAttendance = signal<boolean>(false);
+  CheckAttendance = false;
   showCameraModal = false;
   currentTime = new Date();
   private clockIntervalId: ReturnType<typeof setInterval> | null = null;
@@ -40,8 +40,7 @@ export class CheckInOutComponent implements OnInit, OnDestroy {
         },
         (error) => {
           console.error("Cannot get location", error);
-        }
-      );
+        });
     }
     this.showCameraModal = false;
   }
@@ -61,7 +60,7 @@ export class CheckInOutComponent implements OnInit, OnDestroy {
       });
   }
   onCheckInOut(): void {
-    this.CheckAttendance.set(!this.CheckAttendance());
+    this.CheckAttendance = !this.CheckAttendance;
   }
 
 }

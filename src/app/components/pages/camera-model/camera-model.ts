@@ -48,16 +48,13 @@ export class CameraModel implements OnInit {
       inputSize: 416,
       scoreThreshold: 0.6
     });
-
     const detect = async () => {
       const detection = await faceapi.detectSingleFace(this.video.nativeElement, options); //Detect single face on video streaming 
       if (!detection) {
         requestAnimationFrame(detect); //If no face detected, continue detection - instead of setInterval cause it's asynchronous with updating video frames
       } else {
         console.log("FACE DETECTED", detection);
-
         const capturedImage = this.captureImage();
-
         this.stopCamera();
         this.faceDetected.emit(capturedImage);
       }
@@ -82,18 +79,14 @@ export class CameraModel implements OnInit {
 
     return canvas.toDataURL('image/jpeg', 0.85);
   }
-
   stopCamera() {
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
     }
   }
-
-
   closeModal() {
     this.stopCamera();
     this.faceDetected.emit(null);
   }
-
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NavigationService } from '../../services/navigation.service';
@@ -10,7 +10,8 @@ import { NavigationService } from '../../services/navigation.service';
   templateUrl: './breadcrumb.component.html',
   styleUrl: './breadcrumb.component.css'
 })
-export class BreadcrumbComponent {
+export class BreadcrumbComponent{
   constructor(public navigationService: NavigationService) {}
+
 }
 

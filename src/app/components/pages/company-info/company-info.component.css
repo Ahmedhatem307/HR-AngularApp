@@ -1,70 +1,125 @@
-.list-group-item {
+.section-header h6 {
+  font-weight: 600;
+  margin-bottom: 0;
+  color: var(--primary-color);
+}
+
+.card {
+  border-radius: 10px;
+  border: none;
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+  padding: 1rem 1.25rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.form-control[readonly] {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+input[type="file"] {
   cursor: pointer;
 }
 
-.list-group-item.active {
-  background-color: var(--primary-color);
+small.text-muted {
+  font-size: 0.8rem;
+}
+
+.map-container {
+  position: relative;
+  background: #f8f9fa;
+}
+
+#map {
+  z-index: 1;
+}
+
+.modal-lg {
+  max-width: 900px;
+}
+
+
+.modal-body .bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.btn {
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
   color: white;
-  border-color: var(--primary-color);
 }
 
-.list-group-item:hover:not(.active) {
-  background-color: #f8f9fa;
+.btn-outline-success:hover {
+  background-color: #198754;
+  border-color: #198754;
+  color: white;
 }
 
-.pick-location-btn {
-  white-space: nowrap;
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
 }
 
-.address-picker {
-  display: flex;
-  gap: 1rem;
-  align-items: stretch;
-}
-
-.address-picker textarea {
-  resize: none;
-}
-
-.map-preview-card google-map {
-  border-radius: 10px;
-  overflow: hidden;
-  display: block;
-}
-
-.map-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1.5rem;
-  z-index: 1200;
-}
-
-.map-modal {
-  width: min(900px, 100%);
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
-}
-
-.map-modal .card-body {
-  overflow: auto;
-}
-
-.map-modal google-map {
-  border-radius: 12px;
-  overflow: hidden;
-  display: block;
-}
-
-@media (max-width: 576px) {
-  .address-picker {
-    flex-direction: column;
+@media (max-width: 768px) {
+  .modal-lg {
+    max-width: 95%;
+  }
+  
+  .map-container {
+    height: 350px !important;
+  }
+  
+  .btn {
+    font-size: 0.875rem;
   }
 }
 
+.custom-div-icon {
+  background: transparent;
+  border: none;
+}
 
+/* Loading State */
+.btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Page Container */
+.page-container {
+  padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.border-top {
+  border-color: #dee2e6 !important;
+}
+
+.border-bottom {
+  border-color: #dee2e6 !important;
+}

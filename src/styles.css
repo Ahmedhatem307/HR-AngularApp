@@ -1,7 +1,5 @@
-/* Bootstrap is loaded via CDN in index.html */
 
-/* Custom Color Palette */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400&display=swap');
+@import url('https://fonts.bunny.net/css?family=Open+Sans:400|Montserrat:700');
 :root {
   --primary-color: #E67E22;
   --secondary-color: #628141;
@@ -10,15 +8,13 @@
   --white-color: #FFFFFF;
 }
 
-/* Global Styles */
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;;
+  font-family: 'Open Sans', sans-serif;
   background-color: #f5f5f5;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

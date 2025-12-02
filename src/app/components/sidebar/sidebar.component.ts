@@ -1,8 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-export interface MenuItem {
+interface MenuItem {
   label: string;
   route: string;
   icon: string;
@@ -16,8 +16,9 @@ export interface MenuItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent{
+export class SidebarComponent implements OnChanges{
   @Input() collapsed: boolean = false;
+  // Emits whenever the sidebar collapse state is toggled from within the sidebar
   expandedComponents: Record<string, boolean> = {};
 
   menuItems: MenuItem[] = [
@@ -42,6 +43,12 @@ export class SidebarComponent{
   ];
 
   constructor() { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if(!changes['collapsed'].firstChange){
+      this.collapsed = changes['collapsed'].currentValue;
+    }
+  }
+
 
   toggleSection(item: MenuItem): void {
     if (item.children) 

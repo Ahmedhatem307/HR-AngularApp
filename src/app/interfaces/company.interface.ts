@@ -1,32 +1,17 @@
-export interface CompanyCreateDto {
-    CompanyName: string;
-    Address: string;
-    Latitude: number;
-    Longitude: number;
-    AllowedRadiusMeters: number;
-    ContactEmail: string;
-    ContactPhone: string;
-    DomainUrl: string;
-    LogoUrl?: string;
-    HeaderUrl?: string;
-    FooterUrl?: string;
-    TaxRegistrationNumber: string;
-    CommercialNumber: string;
-}
-
-export interface CompanyUpdateDto {
-    Id: number;
-    CompanyName: string;
-    Address: string;
-    Latitude?: number;
-    Longitude?: number;
-    AllowedRadiusMeters?: number;
-    ContactEmail: string;
-    ContactPhone: string;
-    DomainUrl: string;
-    LogoUrl?: string;
-    HeaderUrl?: string;
-    FooterUrl?: string;
-    TaxRegistrationNumber: string;
-    CommercialNumber: string;
+export interface ICompany {
+    id: number,
+    companyName: string,
+    address: string,
+    latitude: number,
+    longitude: number,
+    allowedRadiusMeters: number,
+    contactEmail?: string,
+    contactPhone?: string,
+    websiteUrl?: string,
+    domainUrl: string,
+    companyLogo?: string,
+    companyHeader?: string,
+    companyFooter?: string,
+    taxRegistrationNumber: string;
+    commercialNumber: string
 }
