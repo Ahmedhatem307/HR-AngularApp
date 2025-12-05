@@ -20,8 +20,8 @@ export class EmployeeService {
     return this.http.get<EmployeeDto>(`${this.API_URL}/Employee/${id}`);
   }
 
-  addEmployee(employeeData: FormData): Observable<EmployeeDto> {
-    return this.http.post<EmployeeDto>(`${this.API_URL}/AddEmployee`, employeeData);
+  addEmployee(employeeData: FormData){
+    return this.http.post(`${this.API_URL}/AddEmployee`, employeeData);
   }
 
   updateEmployee(id: number, employeeData: FormData): Observable<EmployeeDto> {

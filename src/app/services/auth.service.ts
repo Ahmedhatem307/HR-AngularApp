@@ -66,7 +66,7 @@ export class AuthService {
 
 
   register(registerData: FormData) {
-    return this.http.post(`${this.API_URL}/register`, registerData);
+    return this.http.post(`${environment.webApiURL}/api/Applicant/Register`, registerData);
   }
 
   logout(): void {
