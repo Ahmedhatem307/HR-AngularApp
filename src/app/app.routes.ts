@@ -17,7 +17,7 @@ import { Leaves } from './components/pages/leaves/leaves';
 import { Requests } from './components/pages/requests/requests';
 import { Resignations } from './components/pages/resignations/resignations';
 import { Hrletters } from './components/pages/hrletters/hrletters';
-import { ViewRequest } from './view-request/view-request';
+import { ViewRequest } from './components/pages/view-request/view-request';
 import { CreateContractComponent } from './components/pages/contracts/create.contract/create-contract';
 import { ViewContractComponent } from './components/pages/contracts/contract.view/contract.view';
 import { EditContractComponent } from './components/pages/contracts/contract.edit/contract.edit';

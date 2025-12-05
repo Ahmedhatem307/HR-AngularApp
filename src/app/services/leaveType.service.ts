@@ -12,4 +12,8 @@ export class LeaveTypes {
     const result = this.http.get<LeaveType[]>(`${this.Url}`);
     return result;
   }
+
+  GetLeaveTypesById(id: number) {
+    return this.http.get<LeaveType>(`${this.Url}/${id}`);
+  }
 }
