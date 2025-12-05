@@ -21,7 +21,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = `${environment.webApiURL}'/api/Account`; 
+  private readonly API_URL = `${environment.webApiURL}/api/Account`;
   private _isAuthenticated = signal<boolean>(false);
   private _token = signal<string | null>(null);
   private _currentUser = signal<LoginResponse['user'] | null>(null);
@@ -41,7 +41,7 @@ export class AuthService {
   private checkStoredAuth(): void {
     const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const userStr = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
-    
+
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
@@ -63,7 +63,7 @@ export class AuthService {
         this._token.set(response.token);
         this._currentUser.set(response.user);
         this._isAuthenticated.set(true);
-        
+
         // Use localStorage for "Remember Me", sessionStorage otherwise
         const storage = rememberMe ? localStorage : sessionStorage;
         storage.setItem('authToken', response.token);
@@ -79,7 +79,7 @@ export class AuthService {
     const height = 600;
     const left = (window.screen.width - width) / 2;
     const top = (window.screen.height - height) / 2;
-    
+
     const redirectUrl = `${this.API_URL}/external-login/${provider}`;
     const popup = window.open(
       redirectUrl,
@@ -102,17 +102,17 @@ export class AuthService {
 
         if (event.data.type === 'OAUTH_SUCCESS') {
           const response: LoginResponse = event.data.response;
-          
+
           // Store authentication data
           this._token.set(response.token);
           this._currentUser.set(response.user);
           this._isAuthenticated.set(true);
-          
+
           // Store in localStorage for social logins (treat as "remember me")
           localStorage.setItem('authToken', response.token);
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           localStorage.setItem('rememberMe', 'true');
-          
+
           window.removeEventListener('message', messageListener);
           popup.close();
           observer.next(response);
@@ -148,18 +148,18 @@ export class AuthService {
           try {
             const user = JSON.parse(decodeURIComponent(userStr));
             const response: LoginResponse = { token, user };
-            
+
             this._token.set(token);
             this._currentUser.set(user);
             this._isAuthenticated.set(true);
-            
+
             localStorage.setItem('authToken', token);
             localStorage.setItem('currentUser', JSON.stringify(user));
             localStorage.setItem('rememberMe', 'true');
-            
+
             // Clean URL
             window.history.replaceState({}, document.title, originalUrl.split('?')[0]);
-            
+
             observer.next(response);
             observer.complete();
           } catch (error) {
@@ -168,6 +168,10 @@ export class AuthService {
         }
       }
     });
+  }
+
+  register(registerData: FormData): Observable<any> {
+    return this.http.post(`${this.API_URL}/register`, registerData);
   }
 
   logout(): void {
