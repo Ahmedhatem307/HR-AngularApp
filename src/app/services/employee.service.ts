@@ -13,7 +13,7 @@ export class EmployeeService {
   constructor(private http: HttpClient) {}
 
   getAllEmployees() {
-    return this.http.get<EmployeeDto[]>(`${this.API_URL}/Employees`);
+    return this.http.get<[]>(`${this.API_URL}/Employees`);
   }
 
   getEmployeeById(id: number) {

@@ -13,6 +13,13 @@ import { VacanciesComponent } from './components/pages/vacancies/vacancies.compo
 import { LoginComponent } from './components/pages/login/login.component';
 import { RegisterComponent } from './components/pages/register/register.component';
 import { authGuard } from './guards/auth.guard';
+<<<<<<< HEAD
+import { OpenVacancies } from './components/pages/open-vacancies/open-vacancies';
+import { ApplyForm } from './components/pages/apply-form/apply-form';
+import { MyApplications } from './components/pages/my-applications/my-applications';
+import { ApplicationDetails } from './components/pages/application-details/application-details';
+import { Interview } from './components/pages/interview/interview';
+=======
 import { Leaves } from './components/pages/leaves/leaves';
 import { Requests } from './components/pages/requests/requests';
 import { Resignations } from './components/pages/resignations/resignations';
@@ -25,6 +32,7 @@ import { EmployeeComponent } from './components/pages/employee-component/employe
 import { AddEmployeeComponent } from './components/pages/employee-component/add-employee/add-employee.component';
 import { LeaveTypeComponent } from './components/pages/leavetypscomponant/leavetypscomponant';
 import { CompanyInfoComponent } from './components/pages/company-info/company-info.component';
+>>>>>>> upstream/main
 
 export const routes: Routes = [
   {
@@ -35,6 +43,11 @@ export const routes: Routes = [
     path: 'register',
     component: RegisterComponent,
   },
+  { path: 'openvacancies', component: OpenVacancies },
+  { path: 'apply/:id', component: ApplyForm },
+  { path: 'my-applications', component: MyApplications },
+
+
   {
     path: '',
     component: LayoutComponent,
@@ -67,6 +80,17 @@ export const routes: Routes = [
       { path: 'payroll', component: PayrollComponent },
       { path: 'attendance', component: AttendanceComponent },
       { path: 'vacancies', component: VacanciesComponent },
+<<<<<<< HEAD
+      { path: 'application-details/:id', component: ApplicationDetails },
+      { path: 'schedule-interview/:applicationId', component: Interview }
+
+
+
+    ]
+    
+  }
+  
+=======
       { path: 'Leavetyps', component: LeaveTypeComponent },
       { path: 'requests', component: Requests },
       { path: 'requests/leaves', component: Leaves },
