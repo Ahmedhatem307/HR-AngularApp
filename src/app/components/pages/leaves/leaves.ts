@@ -15,6 +15,7 @@ import { LeaveTypeService } from '../../../services/leavetype.service';
 export class Leaves implements OnInit {
   attachmentBase64: string | null = null;
   leaveTypes: any[] = [];
+  leavesSettings: any[] = [];
   form: FormGroup;
   name: string = 'Ahmed';
 
@@ -40,6 +41,7 @@ export class Leaves implements OnInit {
     this.leaveService.getAll().subscribe((type) => {
       const names = type.map((t) => ({ id: t.id, name: t.name }));
       this.leaveTypes = names;
+      this.leavesSettings = type;
     });
   }
   onFileChange(event: any) {
@@ -62,7 +64,6 @@ export class Leaves implements OnInit {
     //   });
     //   if (this.selectedLogo)
     //     formData.append('logoFile', this.selectedLogo, this.selectedLogo.name);
-    debugger;
     const formValue = this.form.value;
     const formData = new FormData();
     formData.append('requestedById', formValue.requestedById.toString());

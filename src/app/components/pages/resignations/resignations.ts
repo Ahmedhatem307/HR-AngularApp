@@ -21,7 +21,7 @@ export class Resignations {
     private location: Location
   ) {
     this.resignationForm = this.fb.group({
-      requestedById: [6],
+      requestedById: [1],
       reason: ['', Validators.required],
       proposedLastWorkingDay: ['', Validators.required],
       attachment: [''],
@@ -32,19 +32,29 @@ export class Resignations {
 
   submitForm() {
     const f = this.resignationForm.value;
-    const payload = {
-      requestedById: Number(f.requestedById),
-      reason: f.reason,
-      proposedLastWorkingDay:
-        f.proposedLastWorkingDay?.trim() === '' ? null : f.proposedLastWorkingDay,
-      attachment: f.attachment?.trim() === '' ? null : f.attachment,
-      firstApproveId: Number(f.firstApproveId),
-      secondApproveId:
-        f.secondApproveId?.toString().trim() === '' ? null : Number(f.secondApproveId),
-      createdBy: this.name,
-    };
+    const formData = new FormData();
 
-    this.resignationService.createResignationRequest({ ...payload }).subscribe(() => {});
+    formData.append('requestedById', Number(f.requestedById).toString());
+    formData.append('reason', f.reason);
+
+    // Optional fields
+    formData.append(
+      'proposedLastWorkingDay',
+      f.proposedLastWorkingDay?.trim() === '' ? '' : f.proposedLastWorkingDay
+    );
+
+    formData.append('attachment', f.attachment?.trim() === '' ? '' : f.attachment);
+
+    // Approver IDs
+    formData.append('firstApproveId', Number(f.firstApproveId).toString());
+    formData.append(
+      'secondApproveId',
+      f.secondApproveId?.toString().trim() === '' ? '' : Number(f.secondApproveId).toString()
+    );
+
+    formData.append('createdBy', this.name);
+
+    this.resignationService.createResignationRequest(formData).subscribe(() => {});
     this.goBack();
   }
 

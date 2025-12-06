@@ -21,12 +21,12 @@ export class Hrletters {
     private location: Location
   ) {
     this.hrLetterForm = this.fb.group({
-      requestedById: [6],
+      requestedById: [1],
       sentTo: ['', Validators.required],
       reason: ['', Validators.required],
       extraDetails: [''],
       attachment: [''],
-      firstApproveId: [null, Validators.required],
+      firstApproveId: ['', Validators.required],
       secondApproveId: [''],
     });
   }
@@ -35,15 +35,15 @@ export class Hrletters {
     const f = this.hrLetterForm.value;
 
     const formData = new FormData();
-
+    debugger;
     formData.append('requestedById', String(f.requestedById));
-    formData.append('sentTo', f.letterType);
+    formData.append('sentTo', f.sentTo);
     formData.append('reason', f.reason);
 
     formData.append('extraDetails', f.extraDetails?.trim() === '' ? '' : f.extraDetails);
     formData.append('attachment', f.attachment?.trim() === '' ? '' : f.attachment);
 
-    formData.append('firstApproveId', String(f.firstApproveId));
+    formData.append('firstApproveId', f.firstApproveId);
 
     if (f.secondApproveId?.toString().trim() !== '') {
       formData.append('secondApproveId', String(f.secondApproveId));
