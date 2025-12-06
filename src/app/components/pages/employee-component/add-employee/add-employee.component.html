@@ -290,25 +290,7 @@
               </select>
             </div>
 
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Contract</label>
-              <select class="form-control" formControlName="contractId" aria-label="Select contract">
-                <option [value]="null">Select contract</option>
-                @for (contract of contracts; track contract.id) {
-                  <option [value]="contract.id">{{ contract.title }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Person ID</label>
-              <input
-                type="number"
-                class="form-control"
-                formControlName="personId"
-                placeholder="Enter person ID (if exists)"
-              />
-            </div>
+          
           </div>
         </div>
 
