@@ -184,18 +184,19 @@ this.selectedImgFile = input.files[0];
       formData.append('password', this.registerForm.value.password || '');
 
       // Append CreatePerson properties (nested object properties)
-      formData.append('createPerson.fullName', this.registerForm.value.fullName?.trim() || '');
-      formData.append('createPerson.birthDate', this.registerForm.value.birthDate || ''); // DateOnly format YYYY-MM-DD
-      formData.append('createPerson.gender', this.registerForm.value.gender || '');
-      formData.append('createPerson.address', this.registerForm.value.address?.trim() || '');
-      formData.append('createPerson.country', this.registerForm.value.country?.trim() || '');
-      formData.append('createPerson.maritalStatus', this.registerForm.value.maritalStatus || '');
-      formData.append('createPerson.nationality', this.registerForm.value.nationality?.trim() || '');
-      formData.append('createPerson.education', this.registerForm.value.education || '');
-      formData.append('createPerson.militaryStatus', this.registerForm.value.militaryStatus || '');
-      formData.append('createPerson.email', this.registerForm.value.email?.trim() || '');
-      formData.append('createPerson.phoneNumber', this.registerForm.value.phoneNumber?.trim() || '');
-      formData.append('createPerson.userName', this.registerForm.value.userName?.trim() || '');
+
+      formData.append('CreatePersonDto.FullName', this.registerForm.value.fullName? this.registerForm.value.fullName.toString().trim() : '');
+      formData.append('CreatePersonDto.BirthDate', this.registerForm.value.birthDate? this.registerForm.value.birthDate.toString().trim() : '');
+      formData.append('CreatePersonDto.Gender', this.registerForm.value.gender? this.registerForm.value.gender.toString().trim() : '');
+      formData.append('CreatePersonDto.Address', this.registerForm.value.address? this.registerForm.value.address.toString().trim() : '');
+      formData.append('CreatePersonDto.Country', this.registerForm.value.country? this.registerForm.value.country.toString().trim() : '');
+      formData.append('CreatePersonDto.MaritalStatus', this.registerForm.value.maritalStatus? this.registerForm.value.maritalStatus.toString().trim() : '');
+      formData.append('CreatePersonDto.Nationality', this.registerForm.value.nationality? this.registerForm.value.nationality.toString().trim() : '');
+      formData.append('CreatePersonDto.Education', this.registerForm.value.education? this.registerForm.value.education.toString().trim() : '');
+      formData.append('CreatePersonDto.MilitaryStatus',this.registerForm.value.militaryStatus? this.registerForm.value.militaryStatus.toString().trim() : '');
+      formData.append('CreatePersonDto.Email',this.registerForm.value.email? this.registerForm.value.email.toString().trim() : '');
+      formData.append('CreatePersonDto.PhoneNumber', this.registerForm.value.phoneNumber? this.registerForm.value.phoneNumber.toString().trim() : '');
+      formData.append('CreatePersonDto.UserName', this.registerForm.value.userName? this.registerForm.value.userName.toString().trim() : '');
 
       // Append ApplicantCreate properties (nested object properties, all optional)
       const applicantData = {

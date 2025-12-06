@@ -12,23 +12,23 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) {}
 
-  getAllEmployees(): Observable<EmployeeDto[]> {
+  getAllEmployees() {
     return this.http.get<EmployeeDto[]>(`${this.API_URL}/Employees`);
   }
 
-  getEmployeeById(id: number): Observable<EmployeeDto> {
+  getEmployeeById(id: number) {
     return this.http.get<EmployeeDto>(`${this.API_URL}/Employee/${id}`);
   }
 
-  addEmployee(employeeData: FormData): Observable<EmployeeDto> {
-    return this.http.post<EmployeeDto>(`${this.API_URL}/AddEmployee`, employeeData);
+  addEmployee(employeeData: FormData){
+    return this.http.post(`${this.API_URL}/AddEmployee`, employeeData);
   }
 
-  updateEmployee(id: number, employeeData: FormData): Observable<EmployeeDto> {
+  updateEmployee(id: number, employeeData: FormData) {
     return this.http.put<EmployeeDto>(`${this.API_URL}/UpdateEmployee/${id}`, employeeData);
   }
 
-  deleteEmployee(id: number): Observable<void> {
+  deleteEmployee(id: number) {
     return this.http.delete<void>(`${this.API_URL}/DeleteEmployee/${id}`);
   }
 }
