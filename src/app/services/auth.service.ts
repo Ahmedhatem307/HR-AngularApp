@@ -18,9 +18,6 @@ export interface LoginResponse {
 })
 export class AuthService {
   private readonly API_URL = `${environment.webApiURL}/api/Account`;
-  private _isAuthenticated = signal<boolean>(false);
-  private _token = signal<string | null>(null);
-  private _currentUser = signal<LoginResponse['user'] | null>(null);
 
   isAuthenticated: boolean = false;
   currentUser: { userName: string; imagepath: string | null; roles: string[] } | null = null;
