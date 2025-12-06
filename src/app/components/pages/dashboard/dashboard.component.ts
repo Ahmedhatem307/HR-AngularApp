@@ -33,7 +33,7 @@ export class DashboardComponent implements OnInit {
   }
   // ====================
   loadPendingRequests() {
-    this.requestsService.GetRequestsForApproval(6).subscribe({
+    this.requestsService.GetRequestsForApproval(1).subscribe({
       next: (res) => {
         const data = Array.isArray(res) ? res : res.result;
         this.pendingRequests = (data ?? []).map((r: any) => ({
@@ -57,7 +57,7 @@ export class DashboardComponent implements OnInit {
         const dto = {
           Id: req.id,
           NewStatus: newStatus,
-          UpdatedByUserId: 6, // logged-in HR/admin ===================
+          UpdatedByUserId: 1, // logged-in HR/admin ===================
         };
         this.requestsService.updateRequestStatus(req.type, dto).subscribe({
           next: () => {
@@ -75,7 +75,7 @@ export class DashboardComponent implements OnInit {
         const dto = {
           Id: req.id,
           NewStatus: newStatus,
-          UpdatedByUserId: 6, // logged-in HR/admin ===================
+          UpdatedByUserId: 1, // logged-in HR/admin ===================
         };
         this.requestsService.updateRequestStatus(req.type, dto).subscribe({
           next: () => {

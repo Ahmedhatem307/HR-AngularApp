@@ -1,34 +1,104 @@
 <div class="container">
-    <h2 class="title">Submit Resignation Request</h2>
+    <div class="form-header">
+        <h2 class="title">Submit Resignation Request</h2>
+        <p class="subtitle">Formally submit your resignation request</p>
+    </div>
 
-    <form [formGroup]="resignationForm" (ngSubmit)="submitForm()" class="form-box">
+    <!-- Warning for pending resignation -->
+    <div class="alert alert-warning" *ngIf="hasPendingResignation">
+        <span class="alert-icon">⚠️</span>
+        <div>
+            <strong>Pending Resignation</strong>
+            <p>You already have a pending resignation request. You cannot submit another one until it is approved or
+                rejected.</p>
+        </div>
+    </div>
 
+    <form [formGroup]="resignationForm" (ngSubmit)="submitForm()" class="form-box"
+        [class.disabled]="hasPendingResignation">
+
+        <!-- Reason -->
         <div class="form-group">
-            <label>Reason</label>
-            <textarea rows="3" formControlName="reason"></textarea>
+            <label for="reason">Reason <span class="required">*</span></label>
+            <textarea id="reason" rows="3" formControlName="reason"
+                placeholder="Please provide your reason for resignation" class="form-control"
+                [disabled]="hasPendingResignation"
+                [class.is-invalid]="resignationForm.get('reason')?.touched && resignationForm.get('reason')?.invalid"></textarea>
+            <span class="error-text"
+                *ngIf="resignationForm.get('reason')?.touched && resignationForm.get('reason')?.invalid">
+                Reason is required
+            </span>
         </div>
 
+        <!-- Proposed Last Working Day -->
         <div class="form-group">
-            <label>Proposed Last Working Day</label>
-            <input type="date" formControlName="proposedLastWorkingDay" />
+            <label for="proposedLastWorkingDay">Proposed Last Working Day <span class="required">*</span></label>
+            <input id="proposedLastWorkingDay" type="date" formControlName="proposedLastWorkingDay" class="form-control"
+                [disabled]="hasPendingResignation"
+                [class.is-invalid]="resignationForm.get('proposedLastWorkingDay')?.touched && resignationForm.get('proposedLastWorkingDay')?.invalid" />
+            <span class="error-text"
+                *ngIf="resignationForm.get('proposedLastWorkingDay')?.touched && resignationForm.get('proposedLastWorkingDay')?.invalid">
+                Proposed last working day is required
+            </span>
         </div>
 
+        <!-- Attachment -->
         <div class="form-group">
-            <label>Attachment (Optional)</label>
-            <input type="file" (change)="onFileChange($event)" />
+            <label for="attachment">Attachment <span class="optional">(Optional)</span></label>
+            <div class="file-input-wrapper">
+                <input #fileInput id="attachment" type="file" (change)="onFileChange($event)"
+                    [disabled]="hasPendingResignation" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                <div class="file-input-label" (click)="!hasPendingResignation && fileInput.click()">
+                    <span class="file-icon">📎</span>
+                    <div class="file-text">
+                        <span *ngIf="!attachmentBase64" class="file-placeholder">
+                            <strong>Choose file</strong> or drag and drop
+                        </span>
+                        <span *ngIf="attachmentBase64" class="file-selected">
+                            ✓ File selected
+                            <button type="button" class="clear-file-btn"
+                                (click)="clearFile(); $event.stopPropagation();"
+                                *ngIf="!hasPendingResignation">✕</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>First Approver ID</label>
-            <input type="number" formControlName="firstApproveId" />
+        <!-- Approvers Section -->
+        <div class="approvers-section">
+            <h3 class="approvers-title">Approval Chain</h3>
+
+            <div class="form-group">
+                <label for="firstApproveId">First Approver ID <span class="required">*</span></label>
+                <input id="firstApproveId" type="number" formControlName="firstApproveId"
+                    [disabled]="hasPendingResignation" class="form-control"
+                    [class.is-invalid]="resignationForm.get('firstApproveId')?.touched && resignationForm.get('firstApproveId')?.invalid" />
+                <span class="error-text"
+                    *ngIf="resignationForm.get('firstApproveId')?.touched && resignationForm.get('firstApproveId')?.invalid">
+                    First approver ID is required
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="secondApproveId">Second Approver ID <span class="optional">(Optional)</span></label>
+                <input id="secondApproveId" type="number" formControlName="secondApproveId"
+                    [disabled]="hasPendingResignation" class="form-control" />
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Second Approver ID (optional)</label>
-            <input type="number" formControlName="secondApproveId" />
+        <!-- Submit Button -->
+        <div class="form-actions">
+            <button class="btn-submit" type="submit"
+                [disabled]="resignationForm.invalid || isSubmitting || hasPendingResignation">
+                <span *ngIf="!isSubmitting && !hasPendingResignation">Submit Resignation</span>
+                <span *ngIf="isSubmitting">Submitting...</span>
+                <span *ngIf="hasPendingResignation">Pending Resignation</span>
+            </button>
+            <button class="btn-cancel" type="button" [disabled]="hasPendingResignation" (click)="goBack()">
+                Cancel
+            </button>
         </div>
-
-        <button class="btn-submit" type="submit">Submit</button>
 
     </form>
 </div>
