@@ -1,68 +1,96 @@
 <div class="page-container">
     <div class="page-header">
-        <h2>Requests</h2>
-
-        <table id="main-table" class="text-center">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Employee</th>
-                    <th>Type</th>
-                    <th>Submitted On</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @if (allRequests.length > 0) {
-                @for (r of allRequests; track r.id) {
-                <tr>
-                    <td>{{ r.id }}</td>
-                    <td>{{r.name}}</td>
-                    <td>{{r.type}}</td>
-                    <td>{{ r.date | date:"medium"}}</td>
-                    <td>
-                        <span [ngClass]="{
-                        'badge-pending': r.status === 'Pending',
-                        'badge-approved': r.status === 'Approved',
-                        'badge-rejected': r.status === 'Rejected'
-                        }">{{ r.status }}
-                        </span>
-                    </td>
-                    <td>
-                        @if(r.status == "Pending")
-                        {
-                        <a class="request-action-btn edit" [routerLink]="['/requests/view', r.id, r.type]">View</a>
-                        <a class="request-action-btn cancel" (click)="cancelRequest(r.id, r.type)">Cancel</a>
-                        }
-                        @else if(r.status == "Cancelled")
-                        {
-                        No Action
-                        }
-                        @else {
-                        <a class="request-action-btn edit" [routerLink]="['/requests/view', r.id, r.type]">View</a>
-                        }
-                    </td>
-                </tr>
-                }
-                } @else {
-                <tr>
-                    <td colspan="7">No Data</td>
-                </tr>
-                }
-
-            </tbody>
-        </table>
+        <div class="header-content">
+            <h2>My Requests</h2>
+            <p class="header-subtitle">Manage your leave, resignation, and HR letter requests</p>
+        </div>
     </div>
 
-    <div class="card">
+    <!-- Requests Table -->
+    <div class="table-section">
+        <div class="section-header">
+            <h3>Request History</h3>
+            <button class="refresh-btn" (click)="loadRequests()" [disabled]="isLoading">
+                <span>🔄</span> Refresh
+            </button>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="main-table" class="requests-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>Submitted On</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (allRequests.length > 0) {
+                    @for (r of allRequests; track r.id) {
+                    <tr>
+                        <td class="td-id">#{{ r.id }}</td>
+                        <td>{{ r.name }}</td>
+                        <td>
+                            <span class="type-badge">{{ r.type }}</span>
+                        </td>
+                        <td>{{ r.date | date:"short" }}</td>
+                        <td>
+                            <span [ngClass]="['status-badge', getStatusBadgeClass(r.status)]">
+                                {{ r.status }}
+                            </span>
+                        </td>
+                        <td class="action-cell">
+                            @if(r.status == "Pending") {
+                            <a class="action-btn view-btn" [routerLink]="['/requests/view', r.id, r.type]"
+                                title="View details">View</a>
+                            <button class="action-btn cancel-btn" (click)="cancelRequest(r.id, r.type)"
+                                title="Cancel request">Cancel</button>
+                            } @else {
+                            <a class="action-btn view-btn" [routerLink]="['/requests/view', r.id, r.type]"
+                                title="View details">View</a>
+                            }
+                        </td>
+                    </tr>
+                    }
+                    } @else {
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <span class="empty-icon">📭</span>
+                            <p>No requests yet</p>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card quick-actions">
+        <div class="card-header">
+            <h3>Create New Request</h3>
+            <p>Submit a new request</p>
+        </div>
         <div class="card-body">
-            <h5 class="card-title">Requests Management</h5>
-            <div class="d-flex gap-5 ">
-                <a class="button-class" routerLink="/requests/leaves">Add Leave</a>
-                <a class="button-class" routerLink="/requests/resignations">Add Resignation</a>
-                <a class="button-class" routerLink="/requests/hrletters">Add HR Letter</a>
+            <div class="actions-grid">
+                <a class="action-card" routerLink="/requests/leaves" title="Request leave">
+                    <span class="action-icon">🏖️</span>
+                    <span class="action-title">Leave Request</span>
+                    <span class="action-desc">Request time off</span>
+                </a>
+                <a class="action-card" routerLink="/requests/resignations" title="Submit resignation">
+                    <span class="action-icon">📋</span>
+                    <span class="action-title">Resignation</span>
+                    <span class="action-desc">Formal resignation</span>
+                </a>
+                <a class="action-card" routerLink="/requests/hrletters" title="Request HR letter">
+                    <span class="action-icon">📄</span>
+                    <span class="action-title">HR Letter</span>
+                    <span class="action-desc">Official HR letter</span>
+                </a>
             </div>
         </div>
     </div>

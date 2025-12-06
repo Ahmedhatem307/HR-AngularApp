@@ -44,7 +44,6 @@ export const routes: Routes = [
   { path: 'apply/:id', component: ApplyForm },
   { path: 'my-applications', component: MyApplications },
 
-
   {
     path: '',
     component: LayoutComponent,
@@ -85,12 +84,13 @@ export const routes: Routes = [
       { path: 'attendance', component: AttendanceComponent },
       { path: 'vacancies', component: VacanciesComponent },
       { path: 'application-details/:id', component: ApplicationDetails },
-      { path: 'schedule-interview/:applicationId', component: Interview }
-
-
-
-    ]
-    
-  }
-
+      { path: 'schedule-interview/:applicationId', component: Interview },
+      { path: 'Leavetyps', component: LeaveTypeComponent },
+      { path: 'requests', component: Requests },
+      { path: 'requests/leaves', component: Leaves },
+      { path: 'requests/resignations', component: Resignations },
+      { path: 'requests/hrletters', component: Hrletters },
+      { path: 'requests/view/:id/:type', component: ViewRequest },
+    ],
+  },
 ];
